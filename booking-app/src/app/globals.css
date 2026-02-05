@@ -1,10 +1,31 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  /* Define colors directly in the CSS for v4 */
+  --color-gold-50: #FBF9F2;
+  --color-gold-100: #F5EFD7;
+  --color-gold-200: #EADEAA;
+  --color-gold-300: #DFCD7D;
+  --color-gold-400: #D4BC50;
+  --color-gold-500: #C9AB23;
+  --color-gold-600: #A1891C;
+  --color-gold-700: #796615;
+  --color-gold-800: #50440E;
+  --color-gold-900: #282207;
+
+  --color-richblack-500: #2A2A2A;
+  --color-richblack-600: #222222;
+  --color-richblack-700: #1A1A1A;
+  --color-richblack-800: #121212;
+  --color-richblack-900: #0A0A0A;
+
+  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-playfair), ui-serif, Georgia, serif;
+}
 
 :root {
-  --background: #0A0A0A; /* Rich Black 900 */
-  --foreground: #F5EFD7; /* Gold 100 - clear contrast but warm */
+  --background: #0A0A0A;
+  --foreground: #F5EFD7;
 }
 
 /* Smooth Scrolling for the whole page */
@@ -15,7 +36,7 @@ html {
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
   overflow-x: hidden;
 }
 
@@ -34,61 +55,66 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #C9AB23; /* Gold */
+  background: #C9AB23;
 }
 
-/* Utility to hide scrollbar but allow scroll */
-.no-scrollbar::-webkit-scrollbar {
+/* Re-add your custom utilities */
+@layer utilities {
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .gold-glow {
+    box-shadow: 0 0 20px rgba(201, 171, 35, 0.15);
+  }
+
+  .shadow-elevated {
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.4),
+      0 16px 32px rgba(0, 0, 0, 0.2),
+      0 0 1px rgba(201, 171, 35, 0.1);
+  }
+
+  .shadow-elevated-gold {
+    box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.5),
+      0 20px 40px rgba(0, 0, 0, 0.3),
+      0 0 60px rgba(201, 171, 35, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  .shadow-card {
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.3),
+      0 8px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  .shadow-card-hover {
+    box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.4),
+      0 16px 32px rgba(0, 0, 0, 0.25),
+      0 0 40px rgba(201, 171, 35, 0.12);
+  }
+
+  .shadow-inner-glow {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
     display: none;
-}
-.no-scrollbar {
+  }
+
+  .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
-}
+  }
 
-/* Glassmorphism Utility Class */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.gold-glow {
-    box-shadow: 0 0 20px rgba(201, 171, 35, 0.15);
-}
-
-/* Sophisticated Depth & Shadow System */
-.shadow-elevated {
-  box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.4),
-    0 16px 32px rgba(0, 0, 0, 0.2),
-    0 0 1px rgba(201, 171, 35, 0.1);
-}
-
-.shadow-elevated-gold {
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.5),
-    0 20px 40px rgba(0, 0, 0, 0.3),
-    0 0 60px rgba(201, 171, 35, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-.shadow-card {
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.3),
-    0 8px 16px rgba(0, 0, 0, 0.15);
-}
-
-.shadow-card-hover {
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.4),
-    0 16px 32px rgba(0, 0, 0, 0.25),
-    0 0 40px rgba(201, 171, 35, 0.12);
-}
-
-.shadow-inner-glow {
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  .transition-shadow-smooth {
+    transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 }
 
 /* Premium Texture Overlay */
@@ -97,19 +123,91 @@ body {
   position: absolute;
   inset: 0;
   background-image:
-    repeating-linear-gradient(
-      0deg,
+    repeating-linear-gradient(0deg,
       transparent,
       transparent 2px,
       rgba(255, 255, 255, 0.01) 2px,
-      rgba(255, 255, 255, 0.01) 4px
-    );
+      rgba(255, 255, 255, 0.01) 4px);
   opacity: 0.3;
   mix-blend-mode: overlay;
   pointer-events: none;
 }
 
-/* Smooth transitions for shadows */
-.transition-shadow-smooth {
-  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+/* Film Grain Noise Overlay */
+.bg-noise {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+}
+
+/* Lando-Style Text Masking */
+.text-mask-gold {
+  background: linear-gradient(to bottom right,
+      #F5EFD7 0%,
+      #C9AB23 50%,
+      #796615 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  background-size: 200% auto;
+  animation: shine 5s linear infinite;
+}
+
+/* Animations */
+@keyframes shine {
+  to {
+    background-position: 200% center;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes glowPulse {
+
+  0%,
+  100% {
+    filter: drop-shadow(0 0 5px rgba(201, 171, 35, 0.3));
+  }
+
+  50% {
+    filter: drop-shadow(0 0 15px rgba(201, 171, 35, 0.6));
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.7s ease-out forwards;
+}
+
+.animate-glow-pulse {
+  animation: glowPulse 3s infinite;
 }

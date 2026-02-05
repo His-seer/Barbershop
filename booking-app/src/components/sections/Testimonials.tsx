@@ -1,38 +1,38 @@
 "use client";
 import { motion } from "framer-motion";
 import { Star, Quote } from "lucide-react";
+import { Review } from "@/types/database";
 
-const testimonials = [
+const STATIC_TESTIMONIALS = [
     {
-        id: 1,
-        name: "Kwame Mensah",
-        role: "Business Executive",
-        image: "KM",
+        id: "static-1",
+        customer_name: "Kwame Mensah",
         rating: 5,
-        text: "Best barbershop experience in Accra! The attention to detail and professionalism is unmatched. I've been a regular client for over a year now.",
-        service: "Royal Treatment"
+        comment: "Best barbershop experience in Accra! The attention to detail and professionalism is unmatched. I've been a regular client for over a year now.",
+        created_at: new Date().toISOString()
     },
     {
-        id: 2,
-        name: "Yaw Boateng",
-        role: "Tech Entrepreneur",
-        image: "YB",
+        id: "static-2",
+        customer_name: "Yaw Boateng",
         rating: 5,
-        text: "The home service is a game changer. Premium quality right at my doorstep. Perfect for busy professionals who value their time.",
-        service: "Home Service Premium"
+        comment: "The home service is a game changer. Premium quality right at my doorstep. Perfect for busy professionals who value their time.",
+        created_at: new Date().toISOString()
     },
     {
-        id: 3,
-        name: "Kofi Asante",
-        role: "Creative Director",
-        image: "KA",
+        id: "static-3",
+        customer_name: "Kofi Asante",
         rating: 5,
-        text: "Not just a haircut, it's an experience. The atmosphere is luxurious, the barbers are skilled artists, and the results speak for themselves.",
-        service: "Standard Cut + Beard Trim"
+        comment: "Not just a haircut, it's an experience. The atmosphere is luxurious, the barbers are skilled artists, and the results speak for themselves.",
+        created_at: new Date().toISOString()
     }
 ];
 
-export function Testimonials() {
+export function Testimonials({ reviews = [] }: { reviews?: Review[] }) {
+    // Use real reviews if available, otherwise show static ones (or mix?)
+    // Decision: If we have real reviews, show them. If < 3, maybe pad with static?
+    // Let's purely show real reviews if we have at least 1, else static (for launch phase).
+    const displayReviews = reviews.length > 0 ? reviews : STATIC_TESTIMONIALS;
+
     return (
         <section className="py-24 px-6 bg-richblack-800 relative overflow-hidden">
             {/* Background Accent */}
@@ -55,15 +55,15 @@ export function Testimonials() {
 
                 {/* Testimonials Grid */}
                 <div className="grid md:grid-cols-3 gap-8">
-                    {testimonials.map((testimonial, index) => (
+                    {displayReviews.map((review, index) => (
                         <motion.div
-                            key={testimonial.id}
+                            key={review.id}
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.6, delay: index * 0.1 }}
                             whileHover={{ y: -8 }}
-                            className="bg-richblack-900/80 backdrop-blur-sm border border-white/10 rounded-2xl p-8 relative shadow-card hover:shadow-card-hover transition-shadow-smooth group"
+                            className="bg-richblack-900/80 backdrop-blur-sm border border-white/10 rounded-2xl p-8 relative shadow-card hover:shadow-card-hover transition-shadow-smooth group h-full flex flex-col"
                         >
                             {/* Quote Icon */}
                             <div className="absolute top-6 right-6 opacity-10 group-hover:opacity-20 transition-opacity">
@@ -72,30 +72,25 @@ export function Testimonials() {
 
                             {/* Stars */}
                             <div className="flex gap-1 mb-6">
-                                {[...Array(testimonial.rating)].map((_, i) => (
+                                {[...Array(review.rating)].map((_, i) => (
                                     <Star key={i} className="w-4 h-4 text-gold-500 fill-gold-500" />
                                 ))}
                             </div>
 
                             {/* Testimonial Text */}
-                            <p className="text-white/80 text-sm leading-relaxed mb-8 relative z-10">
-                                "{testimonial.text}"
+                            <p className="text-white/80 text-sm leading-relaxed mb-8 relative z-10 flex-grow italic">
+                                &quot;{review.comment}&quot;
                             </p>
 
-                            {/* Service Badge */}
-                            <div className="inline-block px-3 py-1 bg-gold-500/10 border border-gold-500/20 rounded-full text-gold-400 text-xs font-medium mb-6">
-                                {testimonial.service}
-                            </div>
-
                             {/* Client Info */}
-                            <div className="flex items-center gap-4 pt-6 border-t border-white/10">
+                            <div className="flex items-center gap-4 pt-6 border-t border-white/10 mt-auto">
                                 {/* Avatar Placeholder */}
-                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center font-bold text-richblack-900 shadow-inner-glow">
-                                    {testimonial.image}
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center font-bold text-richblack-900 shadow-inner-glow shrink-0">
+                                    {review.customer_name.charAt(0)}
                                 </div>
                                 <div>
-                                    <h4 className="text-white font-bold text-sm">{testimonial.name}</h4>
-                                    <p className="text-white/40 text-xs">{testimonial.role}</p>
+                                    <h4 className="text-white font-bold text-sm">{review.customer_name}</h4>
+                                    <p className="text-white/40 text-xs">Verified Customer</p>
                                 </div>
                             </div>
                         </motion.div>

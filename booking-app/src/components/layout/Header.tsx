@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { MagneticButton } from "@/components/ui/MagneticButton";
 
 export function Header() {
     const [scrolled, setScrolled] = useState(false);
@@ -16,17 +17,17 @@ export function Header() {
 
     return (
         <header
-            className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? "bg-richblack-900/80 backdrop-blur-md border-b border-white/5 py-4" : "bg-transparent py-6"
+            className={`fixed top-0 w-full z-[100] transition-all duration-300 ${scrolled ? "bg-richblack-900/80 backdrop-blur-md border-b border-white/5 py-4" : "bg-transparent py-6"
                 }`}
         >
             <div className="container mx-auto px-6 flex items-center justify-between">
                 <Link href="/" className="font-display text-2xl font-bold text-gold-500 tracking-wider hover:text-gold-400 transition-colors">
-                    THE <span className="text-white">SHOP</span>.
+                    Noir<span className="text-white">HairStudios</span>.
                 </Link>
 
                 {/* Desktop Nav */}
                 <nav className="hidden md:flex items-center space-x-8" aria-label="Main navigation">
-                    {["Services", "Barbers", "Gallery"].map((item) => (
+                    {["Services", "Barbers"].map((item) => (
                         <Link
                             key={item}
                             href={`#${item.toLowerCase()}`}
@@ -35,12 +36,14 @@ export function Header() {
                             {item}
                         </Link>
                     ))}
-                    <Link
-                        href="/book"
-                        className="bg-gold-500 text-richblack-900 px-6 py-2 rounded-none font-bold text-sm tracking-widest hover:bg-white transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2 focus:ring-offset-richblack-900"
-                    >
-                        BOOK NOW
-                    </Link>
+                    <MagneticButton>
+                        <Link
+                            href="/book"
+                            className="block bg-gold-500 text-richblack-900 px-6 py-2 rounded-none font-bold text-sm tracking-widest hover:bg-white transition-colors"
+                        >
+                            BOOK NOW
+                        </Link>
+                    </MagneticButton>
                 </nav>
 
                 {/* Mobile Toggle */}
@@ -74,7 +77,7 @@ export function Header() {
                             <X className="w-8 h-8" />
                         </button>
                         <nav className="flex flex-col items-center space-y-8" aria-label="Mobile navigation">
-                            {["Services", "Barbers", "Gallery"].map((item) => (
+                            {["Services", "Barbers"].map((item) => (
                                 <Link
                                     key={item}
                                     href={`#${item.toLowerCase()}`}

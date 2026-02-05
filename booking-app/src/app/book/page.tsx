@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useBookingStore } from "@/store/booking";
 import { Step1Services } from "@/components/booking/Step1Services";
 import { Step2Addons, Step3DateTime } from "@/components/booking/Step2And3";
@@ -10,9 +10,24 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { ChevronLeft, Check } from "lucide-react";
 import clsx from "clsx";
+import { getShopSettings } from "@/utils/supabase/queries";
+import type { ShopSettings } from "@/types/database";
 
 export default function BookingPage() {
     const { step, setStep } = useBookingStore();
+    const [shopSettings, setShopSettings] = useState<ShopSettings | null>(null);
+
+    useEffect(() => {
+        async function fetchSettings() {
+            try {
+                const data = await getShopSettings();
+                setShopSettings(data);
+            } catch (error) {
+                console.error("Failed to load shop settings:", error);
+            }
+        }
+        fetchSettings();
+    }, []);
 
     return (
         <div className="min-h-screen bg-richblack-900 text-white flex flex-col md:flex-row max-w-[2000px] mx-auto">
@@ -100,7 +115,7 @@ export default function BookingPage() {
             </div>
 
             {/* WhatsApp Button */}
-            <WhatsAppButton />
+            <WhatsAppButton phone={shopSettings?.shop_phone} />
         </div>
     );
 }

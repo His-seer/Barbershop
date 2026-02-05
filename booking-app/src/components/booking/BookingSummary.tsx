@@ -1,16 +1,16 @@
 "use client";
 import { useBookingStore } from "@/store/booking";
 import { motion, AnimatePresence } from "framer-motion";
-import { Clock, Calendar, Scissors, Plus } from "lucide-react";
+import { Clock, Calendar, Scissors, Plus, User } from "lucide-react";
 import { format } from "date-fns";
 import clsx from "clsx";
 
 export function BookingSummary() {
-    const { selectedService, selectedAddons, selectedDate, selectedTime } = useBookingStore();
+    const { selectedService, selectedAddons, selectedStaff, selectedDate, selectedTime } = useBookingStore();
 
     // Calculate totals
     const serviceTotal = (selectedService?.price || 0) + selectedAddons.reduce((acc, curr) => acc + curr.price, 0);
-    const totalDuration = (selectedService?.duration || 0) + selectedAddons.reduce((acc, curr) => acc + curr.duration, 0);
+    const totalDuration = (selectedService?.duration_minutes || 0) + selectedAddons.reduce((acc, curr) => acc + curr.duration_minutes, 0);
     const bookingFee = selectedService ? 20 : 0;
     const finalTotal = serviceTotal + bookingFee;
 
@@ -39,7 +39,7 @@ export function BookingSummary() {
                         <p className="text-white font-semibold">{selectedService.name}</p>
                         <p className="text-white/40 text-xs flex items-center gap-1 mt-1">
                             <Clock className="w-3 h-3" />
-                            {selectedService.duration} min
+                            {selectedService.duration_minutes} min
                         </p>
                     </div>
                     <span className="text-gold-400 font-mono text-sm">{selectedService.price} GHS</span>
@@ -61,7 +61,7 @@ export function BookingSummary() {
                                     <p className="text-white/80">{addon.name}</p>
                                     <p className="text-white/30 text-xs flex items-center gap-1">
                                         <Clock className="w-3 h-3" />
-                                        {addon.duration} min
+                                        {addon.duration_minutes} min
                                     </p>
                                 </div>
                             </div>
@@ -70,6 +70,25 @@ export function BookingSummary() {
                     ))}
                 </AnimatePresence>
             </div>
+
+            {/* Selected Staff */}
+            <AnimatePresence>
+                {selectedStaff && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="pt-3 border-t border-white/10"
+                    >
+                        <div className="flex items-center gap-3 text-sm">
+                            <User className="w-4 h-4 text-gold-500/70" />
+                            <div className="flex-1">
+                                <p className="text-white/90 font-medium">{selectedStaff.name}</p>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Date & Time */}
             <AnimatePresence>

@@ -1,50 +1,16 @@
 "use client";
 import { motion } from "framer-motion";
 import { Scissors, Award, Users, TrendingUp } from "lucide-react";
+import type { Staff } from "@/types/database";
 
-const barbers = [
-    {
-        id: 1,
-        name: "Emmanuel Darko",
-        role: "Master Barber & Founder",
-        initials: "ED",
-        experience: "12+ Years",
-        specialty: "Classic & Modern Fades",
-        achievements: [
-            "International Barber Award 2023",
-            "Featured in GQ Magazine",
-            "Trained 50+ barbers across Ghana"
-        ]
-    },
-    {
-        id: 2,
-        name: "Samuel Osei",
-        role: "Senior Barber",
-        initials: "SO",
-        experience: "8+ Years",
-        specialty: "Beard Sculpting & Design",
-        achievements: [
-            "Best Beard Stylist 2024",
-            "Celebrity Grooming Expert",
-            "Precision Detailing Specialist"
-        ]
-    },
-    {
-        id: 3,
-        name: "Kwabena Agyei",
-        role: "Creative Stylist",
-        initials: "KA",
-        experience: "6+ Years",
-        specialty: "Artistic Hair Designs",
-        achievements: [
-            "Social Media Influencer (50K+)",
-            "Creative Pattern Expert",
-            "Youth Style Innovator"
-        ]
-    }
-];
+interface Props {
+    staff: Staff[];
+}
 
-export function BarbersShowcase() {
+export function BarbersShowcase({ staff }: Props) {
+    // Fallback if no staff are loaded yet
+    const displayStaff = staff.length > 0 ? staff : [];
+
     return (
         <section id="barbers" className="py-24 px-6 bg-richblack-900 relative overflow-hidden">
             {/* Background Elements */}
@@ -65,67 +31,93 @@ export function BarbersShowcase() {
                         </p>
                         <h2 className="font-display text-4xl md:text-5xl mb-4 text-white">Master Craftsmen</h2>
                         <p className="text-white/60 max-w-2xl mx-auto text-lg">
-                            Our award-winning barbers bring decades of combined experience and passion for the craft.
+                            Our award-winning barbers bring passion and precision to every cut.
                         </p>
                         <div className="w-24 h-1 bg-gold-500 mx-auto mt-6" />
                     </motion.div>
                 </div>
 
                 {/* Barbers Grid */}
-                <div className="grid md:grid-cols-3 gap-8 mb-16">
-                    {barbers.map((barber, index) => (
-                        <motion.div
-                            key={barber.id}
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.6, delay: index * 0.15 }}
-                            className="group"
-                        >
-                            <div className="bg-richblack-800 border border-white/10 rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-shadow-smooth">
-                                {/* Image Placeholder */}
-                                <div className="relative aspect-[3/4] bg-gradient-to-br from-richblack-700 to-richblack-900 overflow-hidden">
-                                    {/* Initials as placeholder */}
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <div className="w-32 h-32 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center font-display text-5xl font-bold text-richblack-900 shadow-elevated-gold">
-                                            {barber.initials}
+                {displayStaff.length > 0 ? (
+                    <div className="grid md:grid-cols-3 gap-8 mb-16">
+                        {displayStaff.map((barber, index) => {
+                            // Extract initials
+                            const initials = barber.name
+                                .split(' ')
+                                .map(n => n[0])
+                                .join('')
+                                .toUpperCase()
+                                .slice(0, 2);
+
+                            // Use Bio line 1 as Role if available, or default
+                            const role = barber.bio ? barber.bio.split('.')[0] : "Professional Barber";
+                            const specialty = barber.specialties && barber.specialties.length > 0 ? barber.specialties[0] : "General Grooming";
+
+                            return (
+                                <motion.div
+                                    key={barber.id}
+                                    initial={{ opacity: 0, y: 30 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ duration: 0.6, delay: index * 0.15 }}
+                                    className="group"
+                                >
+                                    <div className="bg-richblack-800 border border-white/10 rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-shadow-smooth h-full flex flex-col">
+                                        {/* Image Placeholder / Avatar */}
+                                        <div className="relative aspect-[3/4] bg-gradient-to-br from-richblack-700 to-richblack-900 overflow-hidden flex-shrink-0">
+                                            {barber.avatar_url ? (
+                                                <img src={barber.avatar_url} alt={barber.name} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="absolute inset-0 flex items-center justify-center">
+                                                    <div className="w-32 h-32 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center font-display text-5xl font-bold text-richblack-900 shadow-elevated-gold">
+                                                        {initials}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Overlay on Hover */}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-richblack-900 via-richblack-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                                                <p className="text-gold-400 text-sm font-medium">{specialty}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* Info Section */}
+                                        <div className="p-6 flex-1 flex flex-col justify-between">
+                                            <div>
+                                                <h3 className="font-display text-2xl font-bold text-white mb-1">
+                                                    {barber.name}
+                                                </h3>
+                                                <p className="text-gold-400 text-sm font-medium mb-4">
+                                                    {role}
+                                                </p>
+                                            </div>
+
+                                            {/* Specialties / Achievements Badge */}
+                                            <div className="space-y-2 pt-4 border-t border-white/10 mt-4">
+                                                {barber.specialties && barber.specialties.slice(0, 3).map((spec, i) => (
+                                                    <div key={i} className="flex items-start gap-2 text-white/60 text-xs">
+                                                        <Award className="w-3 h-3 text-gold-500 mt-0.5 flex-shrink-0" />
+                                                        <span>{spec}</span>
+                                                    </div>
+                                                ))}
+                                                {(!barber.specialties || barber.specialties.length === 0) && (
+                                                    <div className="flex items-start gap-2 text-white/60 text-xs italic">
+                                                        <Award className="w-3 h-3 text-gold-500/50 mt-0.5 flex-shrink-0" />
+                                                        <span>Expert Stylist</span>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
-
-                                    {/* Overlay on Hover */}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-richblack-900 via-richblack-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
-                                        <p className="text-gold-400 text-sm font-medium">{barber.specialty}</p>
-                                    </div>
-
-                                    {/* Experience Badge */}
-                                    <div className="absolute top-4 right-4 bg-gold-500 text-richblack-900 px-3 py-1 rounded-full text-xs font-bold shadow-elevated">
-                                        {barber.experience}
-                                    </div>
-                                </div>
-
-                                {/* Info Section */}
-                                <div className="p-6">
-                                    <h3 className="font-display text-2xl font-bold text-white mb-1">
-                                        {barber.name}
-                                    </h3>
-                                    <p className="text-gold-400 text-sm font-medium mb-4">
-                                        {barber.role}
-                                    </p>
-
-                                    {/* Achievements */}
-                                    <div className="space-y-2 pt-4 border-t border-white/10">
-                                        {barber.achievements.map((achievement, i) => (
-                                            <div key={i} className="flex items-start gap-2 text-white/60 text-xs">
-                                                <Award className="w-3 h-3 text-gold-500 mt-0.5 flex-shrink-0" />
-                                                <span>{achievement}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </motion.div>
-                    ))}
-                </div>
+                                </motion.div>
+                            );
+                        })}
+                    </div>
+                ) : (
+                    <div className="text-center p-12 bg-white/5 rounded-2xl border border-white/10 mb-16">
+                        <p className="text-white/40">Our team roster is being updated. Check back soon!</p>
+                    </div>
+                )}
 
                 {/* Why Choose Our Team */}
                 <motion.div
@@ -139,12 +131,12 @@ export function BarbersShowcase() {
                         {
                             icon: Users,
                             title: "Experienced Team",
-                            description: "26+ years combined experience in premium grooming"
+                            description: "Years of combined experience in premium grooming"
                         },
                         {
                             icon: Award,
                             title: "Award Winning",
-                            description: "Multiple national and international accolades"
+                            description: "Recognized for excellence in service"
                         },
                         {
                             icon: TrendingUp,

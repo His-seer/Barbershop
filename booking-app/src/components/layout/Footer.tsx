@@ -1,9 +1,17 @@
 "use client";
 import Link from "next/link";
 import { Scissors, Phone, Mail, MapPin, Instagram, Facebook, Twitter, Shield, Lock, Award } from "lucide-react";
+import type { ShopSettings } from "@/types/database";
 
-export function Footer() {
+interface Props {
+    settings: ShopSettings | null;
+}
+
+export function Footer({ settings }: Props) {
     const currentYear = new Date().getFullYear();
+    const address = settings?.shop_address || "123 Oxford Street, Osu\nAccra, Ghana";
+    const phone = settings?.shop_phone || "+233 20 000 0000";
+    const email = settings?.shop_email || "info@barbershop.com";
 
     return (
         <footer className="bg-richblack-900 border-t border-white/10 relative overflow-hidden">
@@ -16,11 +24,11 @@ export function Footer() {
                     <div>
                         <Link href="/" className="inline-block">
                             <div className="font-display text-2xl font-bold text-gold-500 tracking-wider mb-4">
-                                THE <span className="text-white">SHOP</span>.
+                                {settings?.shop_name?.split(' ')[0] || 'Noir'}<span className="text-white">{settings?.shop_name?.split(' ').slice(1).join('') || 'HairStudios'}</span>.
                             </div>
                         </Link>
                         <p className="text-white/60 text-sm leading-relaxed mb-6">
-                            Premium barbershop experience in the heart of Accra. Master craftsmen delivering exceptional grooming since 2026.
+                            Premium grooming experience in the heart of our city. Master craftsmen delivering exceptional styles since 2026.
                         </p>
                         {/* Social Links */}
                         <div className="flex gap-3">
@@ -71,45 +79,50 @@ export function Footer() {
                         <ul className="space-y-4">
                             <li className="flex items-start gap-3">
                                 <MapPin className="w-5 h-5 text-gold-500 flex-shrink-0 mt-0.5" />
-                                <span className="text-white/60 text-sm">
-                                    123 Oxford Street, Osu<br />
-                                    Accra, Ghana
+                                <span className="text-white/60 text-sm whitespace-pre-line">
+                                    {address}
                                 </span>
                             </li>
                             <li className="flex items-center gap-3">
                                 <Phone className="w-5 h-5 text-gold-500 flex-shrink-0" />
-                                <a href="tel:+233XXXXXXXXX" className="text-white/60 hover:text-gold-500 transition-colors text-sm">
-                                    +233 XX XXX XXXX
+                                <a href={`tel:${phone}`} className="text-white/60 hover:text-gold-500 transition-colors text-sm">
+                                    {phone}
                                 </a>
                             </li>
                             <li className="flex items-center gap-3">
                                 <Mail className="w-5 h-5 text-gold-500 flex-shrink-0" />
-                                <a href="mailto:info@theshopgh.com" className="text-white/60 hover:text-gold-500 transition-colors text-sm">
-                                    info@theshopgh.com
+                                <a href={`mailto:${email}`} className="text-white/60 hover:text-gold-500 transition-colors text-sm">
+                                    {email}
                                 </a>
                             </li>
                         </ul>
                     </div>
 
-                    {/* Hours */}
+                    {/* Status Badge - Dynamic based on today's hours */}
                     <div>
-                        <h3 className="text-white font-bold text-lg mb-6">Opening Hours</h3>
-                        <ul className="space-y-2 text-sm">
-                            <li className="flex justify-between text-white/60">
-                                <span>Mon - Sat</span>
-                                <span className="text-gold-400 font-mono">9AM - 9PM</span>
-                            </li>
-                            <li className="flex justify-between text-white/60">
-                                <span>Sunday</span>
-                                <span className="text-red-400 font-mono">Closed</span>
-                            </li>
-                        </ul>
+                        <h3 className="text-white font-bold text-lg mb-6">Today&apos;s Status</h3>
+                        {(() => {
+                            const dayMap = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+                            const today = dayMap[new Date().getDay()];
+                            const hours = (settings?.business_hours || {}) as Record<string, { open?: string; close?: string }>;
+                            const todayHours = hours[today];
+                            const isOpen = todayHours?.open && todayHours?.open !== '';
 
-                        {/* Status Badge */}
-                        <div className="mt-6 inline-flex items-center gap-2 px-3 py-2 bg-green-900/20 border border-green-500/20 rounded-lg">
-                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                            <span className="text-green-500 text-xs font-medium">Open Now</span>
-                        </div>
+                            return isOpen ? (
+                                <div className="inline-flex items-center gap-2 px-4 py-3 bg-green-900/20 border border-green-500/20 rounded-lg">
+                                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                    <div>
+                                        <span className="text-green-500 text-sm font-medium block">Open Today</span>
+                                        <span className="text-white/40 text-xs">{todayHours.open} - {todayHours.close}</span>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="inline-flex items-center gap-2 px-4 py-3 bg-red-900/20 border border-red-500/20 rounded-lg">
+                                    <div className="w-2 h-2 bg-red-500 rounded-full" />
+                                    <span className="text-red-400 text-sm font-medium">Closed Today</span>
+                                </div>
+                            );
+                        })()}
                     </div>
                 </div>
 
@@ -150,7 +163,7 @@ export function Footer() {
                                 <div className="flex gap-0.5">
                                     {[...Array(5)].map((_, i) => (
                                         <svg key={i} className="w-3 h-3 text-gold-500 fill-current" viewBox="0 0 20 20">
-                                            <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                                            <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
                                         </svg>
                                     ))}
                                 </div>
@@ -181,7 +194,7 @@ export function Footer() {
                 {/* Bottom Bar */}
                 <div className="border-t border-white/10 pt-8">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-white/40">
-                        <p>© {currentYear} The Shop. All rights reserved.</p>
+                        <p>© {currentYear} {settings?.shop_name || 'Noir Hair Studios'}. All rights reserved.</p>
                         <div className="flex gap-6">
                             <Link href="/privacy" className="hover:text-gold-500 transition-colors">
                                 Privacy Policy
