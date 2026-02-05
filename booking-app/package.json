@@ -7,7 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:check-crm": "tsx scripts/check-crm.ts"
+    "db:check-crm": "tsx scripts/check-crm.ts",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
     "@react-email/components": "^1.0.6",
@@ -35,6 +39,8 @@
     "zustand": "^5.0.10"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.1",
+    "@playwright/test": "^1.58.1",
     "@tailwindcss/postcss": "^4",
     "@types/html2canvas": "^1.0.0",
     "@types/jspdf": "^2.0.0",
