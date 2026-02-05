@@ -8,6 +8,9 @@ import { revalidatePath } from 'next/cache';
  */
 export async function toggleStaffStatusAction(staffId: string, isActive: boolean) {
     const supabase = await createClient();
+    if (!supabase) {
+        return { success: false, error: 'Supabase is not configured' };
+    }
 
     try {
         // We can use the RPC or direct update. 

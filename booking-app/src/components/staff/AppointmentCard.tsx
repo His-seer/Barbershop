@@ -78,13 +78,13 @@ export function AppointmentCard({ appointment }: AppointmentCardProps) {
         isOpen: boolean;
         title: string;
         message: string;
-        type: 'danger' | 'warning' | 'success';
+        type: 'danger' | 'warning' | 'success' | 'info';
         action: () => Promise<void>;
     }>({
         isOpen: false,
         title: '',
         message: '',
-        type: 'info' as any,
+        type: 'info',
         action: async () => { },
     });
 
