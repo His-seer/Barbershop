@@ -10,7 +10,7 @@ export function FeedbackWidget() {
             (window as any).FeedbackApp = {
                 projectId: "0bQchrHhg3OHZ6ORkSYF",
                 theme: "dark", // Changed to dark to match your app theme
-                position: "bottom-right",
+                position: "bottom-left",
                 primaryColor: "#EAB308", // Gold color to match your brand
                 buttonText: "Feedback",
                 welcomeMessage: "Please provide feedback",
