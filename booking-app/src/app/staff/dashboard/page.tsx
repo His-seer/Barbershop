@@ -121,7 +121,7 @@ export default async function StaffDashboard({
 
     return (
         <div className="max-w-7xl mx-auto pb-12 px-4 sm:px-6">
-            <DashboardHeader earnings={stats.earnings} target={stats.potential_total > 0 ? stats.potential_total : 500} />
+            <DashboardHeader earnings={stats.earnings} target={500} />
 
             <div className="flex flex-col lg:flex-row gap-8">
                 {/* Left Column: Schedule (60%) */}

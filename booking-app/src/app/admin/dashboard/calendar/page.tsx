@@ -25,14 +25,14 @@ interface CalendarBooking {
     customer_email: string;
     customer_phone: string;
     booking_date: string;
-    start_time: string;
-    end_time: string;
+    booking_time: string;
     total_price: number;
     status: string;
     payment_status: string;
-    notes: string | null;
+    customer_notes: string | null;
+    staff_notes: string | null;
     staff: { id: string; name: string; avatar_url: string | null } | null;
-    services: { service: { id: string; name: string; duration_minutes: number } }[];
+    service: { id: string; name: string; duration_minutes: number } | null;
 }
 
 type CalendarBookingRaw = Omit<CalendarBooking, 'staff'> & {
@@ -146,7 +146,7 @@ export default function CalendarPage() {
         const dateStr = date.toISOString().split('T')[0];
         return bookings.filter(b => {
             if (b.booking_date !== dateStr) return false;
-            const bookingHour = parseInt(b.start_time.split(':')[0]);
+            const bookingHour = parseInt(b.booking_time.split(':')[0]);
             const slotHour = parseInt(timeSlot.split(':')[0]);
             return bookingHour === slotHour;
         });
@@ -271,7 +271,7 @@ export default function CalendarPage() {
                                                 >
                                                     <p className="font-medium truncate">{booking.customer_name}</p>
                                                     <p className="opacity-75 truncate text-[10px]">
-                                                        {booking.start_time.slice(0, 5)}
+                                                        {booking.booking_time.slice(0, 5)}
                                                     </p>
                                                 </button>
                                             ))}
@@ -362,7 +362,7 @@ function BookingDetailModal({ booking, onClose, formatCurrency }: {
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2 text-white/60">
                             <Clock className="w-4 h-4" />
-                            <span>{booking.start_time.slice(0, 5)} - {booking.end_time.slice(0, 5)}</span>
+                            <span>{booking.booking_time.slice(0, 5)}</span>
                         </div>
                         {booking.staff && (
                             <div className="flex items-center gap-2 text-white/60">
@@ -384,17 +384,15 @@ function BookingDetailModal({ booking, onClose, formatCurrency }: {
                         </div>
                     </div>
 
-                    {/* Services */}
-                    <div>
-                        <p className="text-white/40 text-xs uppercase mb-2">Services</p>
-                        <div className="space-y-1">
-                            {booking.services.map((s, idx) => (
-                                <p key={idx} className="text-white text-sm">
-                                    • {s.service.name} ({s.service.duration_minutes} min)
-                                </p>
-                            ))}
+                    {/* Service */}
+                    {booking.service && (
+                        <div>
+                            <p className="text-white/40 text-xs uppercase mb-2">Service</p>
+                            <p className="text-white text-sm">
+                                • {booking.service.name} ({booking.service.duration_minutes} min)
+                            </p>
                         </div>
-                    </div>
+                    )}
 
                     {/* Price & Status */}
                     <div className="flex items-center justify-between pt-4 border-t border-white/10">
@@ -418,10 +416,19 @@ function BookingDetailModal({ booking, onClose, formatCurrency }: {
                     </div>
 
                     {/* Notes */}
-                    {booking.notes && (
+                    {(booking.customer_notes || booking.staff_notes) && (
                         <div className="pt-4 border-t border-white/10">
                             <p className="text-white/40 text-xs uppercase mb-1">Notes</p>
-                            <p className="text-white/60 text-sm">{booking.notes}</p>
+                            {booking.customer_notes && (
+                                <p className="text-white/60 text-sm mb-2">
+                                    <span className="text-white/40">Customer:</span> {booking.customer_notes}
+                                </p>
+                            )}
+                            {booking.staff_notes && (
+                                <p className="text-white/60 text-sm">
+                                    <span className="text-white/40">Staff:</span> {booking.staff_notes}
+                                </p>
+                            )}
                         </div>
                     )}
                 </div>

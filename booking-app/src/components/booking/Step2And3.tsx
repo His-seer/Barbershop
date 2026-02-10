@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import { useBookingStore } from "@/store/booking";
-import { getAddons, getStaff, getAvailableSlots, calculateBookingDuration } from "@/utils/supabase/queries";
+import { getBarberAvailability } from "@/actions/get-availability";
+import { getAddons, getActiveStaff, calculateBookingDuration } from "@/utils/supabase/queries";
 import type { Addon, Staff } from "@/types/database";
 import { motion } from "framer-motion";
 import { Plus, Check, ChevronRight, Loader2 } from "lucide-react";
@@ -108,7 +109,7 @@ export function Step3DateTime() {
     useEffect(() => {
         async function fetchStaff() {
             try {
-                const data = await getStaff();
+                const data = await getActiveStaff();
                 setStaff(data);
             } catch (error) {
                 console.error('Error loading staff:', error);
@@ -133,9 +134,8 @@ export function Step3DateTime() {
                 const addonIds = selectedAddons.map(a => a.id);
                 const totalDuration = await calculateBookingDuration(selectedService.id, addonIds);
 
-                // Get available slots
-                const dateStr = format(selectedDate, 'yyyy-MM-dd');
-                const slots = await getAvailableSlots(selectedStaff.id, dateStr, totalDuration);
+                // Get available slots using robust server action with demo fallback
+                const slots = await getBarberAvailability(selectedStaff.id, selectedDate, totalDuration);
                 setAvailableSlots(slots);
             } catch (error) {
                 console.error('Error fetching availability:', error);

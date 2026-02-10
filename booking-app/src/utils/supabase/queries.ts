@@ -320,12 +320,34 @@ export async function getStaff(): Promise<Staff[]> {
     const { data, error } = await supabase
         .from('staff')
         .select('*')
-        .eq('is_active', true)
+        // .eq('is_active', true) // Removed to allow booking 'Offline' staff (who are just on break)
         .order('name', { ascending: true });
 
     if (error) {
         console.error('Error fetching staff:', error);
         throw new Error('Failed to fetch staff');
+    }
+
+    return data || [];
+}
+
+/**
+ * Get only ACTIVE (online) staff members.
+ * Use this for customer-facing pages (booking flow) where offline staff should not appear.
+ * For admin/login pages that need ALL staff, use getStaff() instead.
+ */
+export async function getActiveStaff(): Promise<Staff[]> {
+    const supabase = createClient();
+
+    const { data, error } = await supabase
+        .from('staff')
+        .select('*')
+        .eq('is_active', true)
+        .order('name', { ascending: true });
+
+    if (error) {
+        console.error('Error fetching active staff:', error);
+        throw new Error('Failed to fetch active staff');
     }
 
     return data || [];
@@ -738,16 +760,26 @@ export async function createStaff(data: CreateStaffInput) {
 export async function updateStaff(data: UpdateStaffInput) {
     const supabase = createClient();
 
-    const { data: result, error } = await supabase.rpc('update_staff', {
-        p_staff_id: data.id,
-        p_name: data.name,
-        p_email: data.email,
-        p_phone: data.phone,
-        p_bio: data.bio || null,
-        p_specialties: data.specialties || [],
-        p_payment_details: data.payment_details || null,
-        p_avatar_url: data.avatar_url || null // Added
-    });
+    const updateData: any = {
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        bio: data.bio || null,
+        specialties: data.specialties || [],
+        payment_details: data.payment_details || null,
+        avatar_url: data.avatar_url || null
+    };
+
+    if (data.pin) {
+        updateData.pin_hash = await hashPin(data.pin);
+    }
+
+    const { data: result, error } = await supabase
+        .from('staff')
+        .update(updateData)
+        .eq('id', data.id)
+        .select()
+        .single();
 
     if (error) {
         console.error('Error updating staff:', error);
@@ -917,11 +949,10 @@ export async function getTransactions(filters?: {
             customer_name,
             customer_email,
             booking_date,
-            start_time,
+            booking_time,
             total_price,
+            total_amount,
             payment_status,
-            payment_method,
-            payment_reference,
             created_at,
             staff:staff_id (id, name)
         `)
@@ -1197,22 +1228,20 @@ export async function getBookingsForCalendar(startDate: string, endDate: string,
             customer_email,
             customer_phone,
             booking_date,
-            start_time,
-            end_time,
+            booking_time,
             total_price,
             status,
             payment_status,
-            notes,
+            customer_notes,
+            staff_notes,
             staff:staff_id (id, name, avatar_url),
-            services:booking_services (
-                service:service_id (id, name, duration_minutes)
-            )
+            service:service_id (id, name, duration_minutes)
         `)
         .gte('booking_date', startDate)
         .lte('booking_date', endDate)
         .neq('status', 'cancelled')
         .order('booking_date', { ascending: true })
-        .order('start_time', { ascending: true });
+        .order('booking_time', { ascending: true });
 
     if (staffId && staffId !== 'all') {
         query = query.eq('staff_id', staffId);

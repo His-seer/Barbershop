@@ -22,11 +22,13 @@ export async function loginStaff(prevState: unknown, formData: FormData) {
 
     try {
         // 2. Fetch staff by phone
+        // Note: We do NOT filter by is_active here. The is_active flag controls
+        // whether the staff member accepts bookings, not whether they can log in.
+        // An offline staff member should still be able to access their dashboard.
         const { data: staff, error } = await supabase
             .from('staff')
             .select('*')
             .eq('phone', phone)
-            .eq('is_active', true)
             .single();
 
         if (error || !staff) {

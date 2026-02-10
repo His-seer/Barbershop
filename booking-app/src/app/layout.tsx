@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Outfit, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import { FeedbackWidget } from "@/components/FeedbackWidget";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -32,7 +31,6 @@ export default function RootLayout({
         className={`${outfit.variable} ${playfair.variable} antialiased bg-richblack-900 text-gold-100`}
       >
         {children}
-        <FeedbackWidget />
       </body>
     </html>
   );

@@ -4,8 +4,10 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, AlertTriangle, X } from 'lucide-react';
 import { format, addDays, subDays } from 'date-fns';
 import { useState } from 'react';
+import { markStaffUnavailable } from '@/actions/time-off';
 
 import { WalkInModal } from './WalkInModal';
+import { Toast } from '@/components/ui/Toast';
 
 export function DashboardHeader({ earnings = 0, target = 500 }: { earnings?: number, target?: number }) {
     const router = useRouter();
@@ -19,6 +21,8 @@ export function DashboardHeader({ earnings = 0, target = 500 }: { earnings?: num
     const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
     const [isWalkInModalOpen, setIsWalkInModalOpen] = useState(false);
     const [emergencyReason, setEmergencyReason] = useState('sick'); // Default reason
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
     const changeDate = (days: number) => {
         const newDate = days > 0 ? addDays(currentDate, days) : subDays(currentDate, Math.abs(days));
@@ -126,13 +130,35 @@ export function DashboardHeader({ earnings = 0, target = 500 }: { earnings?: num
                             </div>
 
                             <button
-                                onClick={() => {
-                                    alert(`Schedule blocked for reason: ${emergencyReason} (Simulation)`);
-                                    setIsEmergencyModalOpen(false);
+                                onClick={async () => {
+                                    setIsSubmitting(true);
+                                    const dateStr = format(currentDate, 'yyyy-MM-dd');
+                                    const result = await markStaffUnavailable(dateStr, emergencyReason);
+                                    setIsSubmitting(false);
+
+                                    if (result.success) {
+                                        const cancelledCount = result.cancelledCount || 0;
+                                        setToast({
+                                            message: `Schedule blocked for ${format(currentDate, 'MMMM do')}.
+Reason: ${emergencyReason}
+${cancelledCount > 0
+                                                    ? `${cancelledCount} booking(s) cancelled.`
+                                                    : 'No bookings affected.'}`,
+                                            type: 'success'
+                                        });
+                                        setIsEmergencyModalOpen(false);
+                                        router.refresh();
+                                    } else {
+                                        setToast({
+                                            message: `Error: ${result.error || 'Failed to block schedule'}`,
+                                            type: 'error'
+                                        });
+                                    }
                                 }}
-                                className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-4 rounded-xl transition-colors shadow-lg shadow-red-900/20"
+                                disabled={isSubmitting}
+                                className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-4 rounded-xl transition-colors shadow-lg shadow-red-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Confirm & Block Schedule
+                                {isSubmitting ? 'Processing...' : 'Confirm & Block Schedule'}
                             </button>
                             <button
                                 onClick={() => setIsEmergencyModalOpen(false)}
@@ -143,6 +169,16 @@ export function DashboardHeader({ earnings = 0, target = 500 }: { earnings?: num
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* Toast Notification */}
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
+                    duration={5000}
+                />
             )}
         </div>
     );
