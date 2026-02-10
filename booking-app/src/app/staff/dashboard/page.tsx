@@ -119,6 +119,37 @@ export default async function StaffDashboard({
 
     stats.potential_total = stats.earnings + stats.pending_earning;
 
+    // ===== OVERTIME & BONUS CALCULATION =====
+    const dailyTarget = 500;
+    const goalReached = stats.earnings >= dailyTarget;
+    const overtime = goalReached ? stats.earnings - dailyTarget : 0;
+
+    // Tiered Bonus System
+    let bonusMultiplier = 0;
+    let bonusLabel = '';
+    let bonusColor = '';
+
+    if (stats.earnings >= dailyTarget * 1.5) {
+        // 150%+ target = Legendary (20% bonus)
+        bonusMultiplier = 0.20;
+        bonusLabel = '🔥 Legendary';
+        bonusColor = 'from-purple-600 to-pink-600';
+    } else if (stats.earnings >= dailyTarget * 1.25) {
+        // 125%+ target = Elite (15% bonus)
+        bonusMultiplier = 0.15;
+        bonusLabel = '⭐ Elite';
+        bonusColor = 'from-blue-600 to-cyan-600';
+    } else if (stats.earnings >= dailyTarget * 1.1) {
+        // 110%+ target = Champion (10% bonus)
+        bonusMultiplier = 0.10;
+        bonusLabel = '💪 Champion';
+        bonusColor = 'from-green-600 to-emerald-600';
+    }
+
+    const bonusAmount = overtime * bonusMultiplier;
+    const totalWithBonus = stats.earnings + bonusAmount;
+
+
     return (
         <div className="max-w-7xl mx-auto pb-12 px-4 sm:px-6">
             <DashboardHeader earnings={stats.earnings} target={500} />
@@ -171,28 +202,65 @@ export default async function StaffDashboard({
                     />
 
                     {/* Earnings Card */}
-                    <div className="bg-richblack-800 border border-gold-500/20 p-6 rounded-2xl relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-gold-500/5 rounded-full blur-2xl -mr-10 -mt-10" />
+                    <div className={`${bonusMultiplier > 0
+                        ? `bg-gradient-to-br ${bonusColor} border-white/30`
+                        : goalReached
+                            ? 'bg-richblack-800 border-green-500/30'
+                            : 'bg-richblack-800 border-gold-500/20'
+                        } p-6 rounded-2xl relative overflow-hidden border transition-all duration-500`}>
+                        <div className={`absolute top-0 right-0 w-32 h-32 ${bonusMultiplier > 0 ? 'bg-white/10' : goalReached ? 'bg-green-500/10' : 'bg-gold-500/5'
+                            } rounded-full blur-2xl -mr-10 -mt-10`} />
 
                         <div className="relative z-10">
-                            <p className="text-sm uppercase tracking-widest text-gold-500/60 font-bold mb-1">Today&apos;s Earnings</p>
-                            <h3 className="text-4xl font-display font-bold text-white mb-6">
-                                GHS {stats.earnings.toFixed(2)}
+                            <div className="flex items-center justify-between mb-1">
+                                <p className={`text-sm uppercase tracking-widest font-bold ${bonusMultiplier > 0 ? 'text-white' : goalReached ? 'text-green-500/80' : 'text-gold-500/60'
+                                    }`}>
+                                    Today&apos;s Earnings
+                                </p>
+                                {bonusLabel && (
+                                    <span className="text-xs font-bold bg-white/20 text-white px-2 py-1 rounded-full backdrop-blur-sm">
+                                        {bonusLabel}
+                                    </span>
+                                )}
+                            </div>
+                            <h3 className={`text-4xl font-display font-bold mb-6 ${bonusMultiplier > 0 ? 'text-white' : 'text-white'
+                                }`}>
+                                GHS {totalWithBonus.toFixed(2)}
                             </h3>
 
                             <div className="space-y-3 pt-4 border-t border-white/10">
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-white/50">Completed</span>
-                                    <span className="text-white font-bold">GHS {stats.earnings}</span>
+                                    <span className={bonusMultiplier > 0 ? 'text-white/80' : 'text-white/50'}>Base Earnings</span>
+                                    <span className={bonusMultiplier > 0 ? 'text-white font-bold' : 'text-white font-bold'}>GHS {stats.earnings.toFixed(2)}</span>
                                 </div>
+
+                                {goalReached && (
+                                    <>
+                                        <div className="flex justify-between items-center text-sm">
+                                            <span className="text-green-400/80">💰 Overtime</span>
+                                            <span className="text-green-400 font-bold">+ GHS {overtime.toFixed(2)}</span>
+                                        </div>
+
+                                        {bonusMultiplier > 0 && (
+                                            <div className="flex justify-between items-center text-sm bg-white/10 -mx-2 px-2 py-2 rounded-lg">
+                                                <span className="text-white font-bold">🎁 Bonus ({(bonusMultiplier * 100).toFixed(0)}%)</span>
+                                                <span className="text-white font-bold">+ GHS {bonusAmount.toFixed(2)}</span>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-white/50">Pending</span>
-                                    <span className="text-white/40 font-mono">+ GHS {stats.pending_earning}</span>
+                                    <span className={bonusMultiplier > 0 ? 'text-white/80' : 'text-white/50'}>Pending</span>
+                                    <span className={bonusMultiplier > 0 ? 'text-white/60 font-mono' : 'text-white/40 font-mono'}>+ GHS {stats.pending_earning.toFixed(2)}</span>
                                 </div>
-                                <div className="flex justify-between items-center text-sm pt-2 border-t border-white/5">
-                                    <span className="text-gold-500 font-bold">Potential Total</span>
-                                    <span className="text-gold-500 font-bold">GHS {stats.potential_total}</span>
-                                </div>
+
+                                {bonusMultiplier > 0 && (
+                                    <div className="flex justify-between items-center text-sm pt-2 border-t border-white/20">
+                                        <span className="text-white font-bold">💎 Total with Bonus</span>
+                                        <span className="text-white font-bold text-lg">GHS {totalWithBonus.toFixed(2)}</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -214,6 +282,74 @@ export default async function StaffDashboard({
                             <p className="text-2xl font-bold text-white">{stats.completed}</p>
                         </div>
                     </div>
+
+                    {/* Bonus Rewards Tracker */}
+                    {goalReached && (
+                        <div className="bg-gradient-to-br from-purple-900/20 to-pink-900/20 border border-purple-500/30 p-5 rounded-xl">
+                            <div className="flex items-center gap-2 mb-3">
+                                <TrendingUp className="w-5 h-5 text-purple-400" />
+                                <h4 className="text-purple-300 font-bold text-sm">🎯 Bonus Rewards Tracker</h4>
+                            </div>
+
+                            {bonusMultiplier === 0 ? (
+                                <>
+                                    <p className="text-xs text-purple-200/60 mb-3">
+                                        Goal reached! Earn <span className="text-purple-300 font-bold">GHS {(dailyTarget * 0.1).toFixed(0)} more</span> to unlock <span className="text-green-400 font-bold">Champion (10% bonus)</span>
+                                    </p>
+                                    <div className="h-2 bg-richblack-900 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-gradient-to-r from-green-600 to-emerald-400 transition-all duration-500"
+                                            style={{ width: `${Math.min((stats.earnings / (dailyTarget * 1.1)) * 100, 100)}%` }}
+                                        />
+                                    </div>
+                                </>
+                            ) : bonusMultiplier === 0.10 ? (
+                                <>
+                                    <p className="text-xs text-purple-200/60 mb-3">
+                                        Champion unlocked! Earn <span className="text-purple-300 font-bold">GHS {((dailyTarget * 1.25) - stats.earnings).toFixed(0)} more</span> to unlock <span className="text-cyan-400 font-bold">Elite (15% bonus)</span>
+                                    </p>
+                                    <div className="h-2 bg-richblack-900 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-gradient-to-r from-blue-600 to-cyan-400 transition-all duration-500"
+                                            style={{ width: `${Math.min(((stats.earnings - dailyTarget * 1.1) / (dailyTarget * 0.15)) * 100, 100)}%` }}
+                                        />
+                                    </div>
+                                </>
+                            ) : bonusMultiplier === 0.15 ? (
+                                <>
+                                    <p className="text-xs text-purple-200/60 mb-3">
+                                        Elite unlocked! Earn <span className="text-purple-300 font-bold">GHS {((dailyTarget * 1.5) - stats.earnings).toFixed(0)} more</span> to unlock <span className="text-pink-400 font-bold">Legendary (20% bonus)</span>
+                                    </p>
+                                    <div className="h-2 bg-richblack-900 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-gradient-to-r from-purple-600 to-pink-400 transition-all duration-500"
+                                            style={{ width: `${Math.min(((stats.earnings - dailyTarget * 1.25) / (dailyTarget * 0.25)) * 100, 100)}%` }}
+                                        />
+                                    </div>
+                                </>
+                            ) : (
+                                <p className="text-xs text-pink-200/80 font-bold">
+                                    🔥 Legendary status achieved! You're an absolute legend!
+                                </p>
+                            )}
+
+                            <div className="mt-4 pt-3 border-t border-purple-500/20 space-y-1">
+                                <p className="text-[10px] text-purple-200/40 uppercase tracking-wider mb-2">Reward Tiers</p>
+                                <div className="flex justify-between text-xs">
+                                    <span className="text-purple-200/60">💪 110% (GHS {(dailyTarget * 1.1).toFixed(0)})</span>
+                                    <span className="text-green-400">+10%</span>
+                                </div>
+                                <div className="flex justify-between text-xs">
+                                    <span className="text-purple-200/60">⭐ 125% (GHS {(dailyTarget * 1.25).toFixed(0)})</span>
+                                    <span className="text-cyan-400">+15%</span>
+                                </div>
+                                <div className="flex justify-between text-xs">
+                                    <span className="text-purple-200/60">🔥 150% (GHS {(dailyTarget * 1.5).toFixed(0)})</span>
+                                    <span className="text-pink-400">+20%</span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Quick Guide */}
                     <div className="bg-blue-900/10 border border-blue-500/20 p-5 rounded-xl">

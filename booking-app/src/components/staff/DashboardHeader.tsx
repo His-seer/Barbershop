@@ -31,6 +31,7 @@ export function DashboardHeader({ earnings = 0, target = 500 }: { earnings?: num
     };
 
     const progressPercentage = Math.min((earnings / target) * 100, 100);
+    const goalReached = earnings >= target;
 
     return (
         <div className="flex flex-col sm:flex-row justify-between items-end gap-4 mb-8 border-b border-white/5 pb-8">
@@ -80,18 +81,24 @@ export function DashboardHeader({ earnings = 0, target = 500 }: { earnings?: num
 
             <div className="text-right hidden sm:block w-64">
                 <div className="flex justify-between items-end mb-2">
-                    <p className="text-xs uppercase tracking-widest text-gold-500">Daily Goal</p>
+                    <p className={`text-xs uppercase tracking-widest transition-colors duration-500 ${goalReached ? 'text-green-500' : 'text-gold-500'}`}>
+                        Daily Goal
+                    </p>
                     <p className="text-xs text-white/60">GHS {earnings} / {target}</p>
                 </div>
                 <div className="h-2 w-full bg-richblack-800 rounded-full overflow-hidden relative">
                     <div className="absolute inset-0 bg-white/5" />
                     <div
-                        className="h-full bg-gradient-to-r from-gold-600 to-gold-400 transition-all duration-1000 ease-out"
+                        className={`h-full transition-all duration-1000 ease-out ${goalReached
+                                ? 'bg-gradient-to-r from-green-600 to-green-400 shadow-lg shadow-green-500/50'
+                                : 'bg-gradient-to-r from-gold-600 to-gold-400'
+                            }`}
                         style={{ width: `${progressPercentage}%` }}
                     />
                 </div>
-                <p className="text-[10px] text-white/30 mt-1 text-right italic">
-                    {progressPercentage >= 100 ? 'Goal reached! 🎉' : `${(target - earnings).toFixed(0)} more to reach target`}
+                <p className={`text-[10px] mt-1 text-right italic transition-colors duration-500 ${goalReached ? 'text-green-400 font-bold' : 'text-white/30'
+                    }`}>
+                    {progressPercentage >= 100 ? '🎉 Goal reached! Keep going!' : `${(target - earnings).toFixed(0)} more to reach target`}
                 </p>
             </div>
 

@@ -21,7 +21,23 @@ export async function getBarberAvailability(barberId: string, date: Date, durati
     // Check for supabase client
     if (!supabase) {
         console.warn('Supabase not configured. Using Demo Mode for availability.');
-        const allSlots = generateTimeSlots(9, 21);
+        let allSlots = generateTimeSlots(9, 21);
+
+        // Filter out past slots if looking at today
+        const now = new Date();
+        const dateString = date.toISOString().split('T')[0];
+        const todayString = now.toISOString().split('T')[0];
+
+        if (dateString === todayString) {
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+
+            allSlots = allSlots.filter(slot => {
+                const [h, m] = slot.split(':').map(Number);
+                return h > currentHour || (h === currentHour && m > currentMinute);
+            });
+        }
+
         return getDemoAvailability(barberId, date, allSlots, durationMinutes);
     }
 
@@ -76,7 +92,25 @@ export async function getBarberAvailability(barberId: string, date: Date, durati
     }
 
     // Generate possible time slots for this specific day
-    const allSlots = generateTimeSlots(startHour, endHour);
+    let allSlots = generateTimeSlots(startHour, endHour);
+
+    // Filter out past slots if looking at today
+    const now = new Date();
+    const todayString = now.toISOString().split('T')[0];
+
+    if (dateString === todayString) {
+        const currentHour = now.getHours();
+        const currentMinute = now.getMinutes();
+
+        allSlots = allSlots.filter(slot => {
+            const [h, m] = slot.split(':').map(Number);
+            // Allow slots starting 15 mins from now to give buffer
+            // Or just strict future slots
+            // User asked: "if time is 2pm will slots be from 9am" -> implying we just hide 9am
+            // Current Logic: Only show slots that are strictly in the future relative to server time.
+            return h > currentHour || (h === currentHour && m > currentMinute);
+        });
+    }
 
     try {
         // Fetch all bookings for this staff on this date
