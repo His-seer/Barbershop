@@ -5,7 +5,7 @@ import { useBookingStore } from "@/store/booking";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import clsx from "clsx";
-import { CreditCard, Lock, Smartphone, User, AlertCircle, Mail, MessageSquare } from "lucide-react";
+import { CreditCard, Lock, Smartphone, User, AlertCircle, Mail, MessageSquare, Gift } from "lucide-react";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { BookingPolicies } from "@/components/booking/BookingPolicies";
 import { initializePayment } from '@/utils/paystack';
@@ -95,6 +95,8 @@ export function Step4Payment() {
                 customerPhone: clientDetails.phone || null,
                 preferEmailOnly: clientDetails.preferEmailOnly || false,
                 reminderPreference: clientDetails.reminderPreference || 'email_sms',
+                customerBirthdayDay: clientDetails.birthdayDay || null,
+                customerBirthdayMonth: clientDetails.birthdayMonth || null,
                 customerNotes: customerNotes || null,
                 serviceId: selectedService?.id,
                 serviceName: selectedService?.name,
@@ -229,9 +231,45 @@ export function Step4Payment() {
                                     </motion.div>
                                 ) : (
                                     <p className="text-white/30 text-xs mt-1" id="phone-helper">
-                                        For SMS reminders (optional). We respect your privacy.
+                                        Optional: Add your number for birthday wishes and free service offers! 🎁
                                     </p>
                                 )}
+                            </div>
+
+                            {/* Birthday Section */}
+                            <div>
+                                <label className="block text-white/50 text-sm mb-1">
+                                    Birthday <span className="text-white/30 text-xs">(Optional - Get a free cut!)</span>
+                                </label>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="relative">
+                                        <Gift className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" aria-hidden="true" />
+                                        <select
+                                            value={clientDetails.birthdayDay || ''}
+                                            onChange={(e) => setClientDetails({ birthdayDay: e.target.value })}
+                                            className="w-full bg-richblack-900 border border-white/10 rounded p-3 pl-10 text-white focus:ring-2 focus:ring-gold-500/20 outline-none transition-colors appearance-none cursor-pointer"
+                                            aria-label="Birthday Day"
+                                        >
+                                            <option value="">Day</option>
+                                            {Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
+                                                <option key={day} value={day.toString().padStart(2, '0')}>{day}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="relative">
+                                        <select
+                                            value={clientDetails.birthdayMonth || ''}
+                                            onChange={(e) => setClientDetails({ birthdayMonth: e.target.value })}
+                                            className="w-full bg-richblack-900 border border-white/10 rounded p-3 text-white focus:ring-2 focus:ring-gold-500/20 outline-none transition-colors appearance-none cursor-pointer"
+                                            aria-label="Birthday Month"
+                                        >
+                                            <option value="">Month</option>
+                                            {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map((month, index) => (
+                                                <option key={month} value={(index + 1).toString().padStart(2, '0')}>{month}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                             <div>
                                 <label htmlFor="email" className="block text-white/50 text-sm mb-1">Email Address</label>

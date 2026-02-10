@@ -443,6 +443,7 @@ export async function createBooking(bookingData: CreateBookingData): Promise<Boo
                 customer_phone: bookingData.customer_phone || null,
                 prefer_email_only: bookingData.prefer_email_only || false,
                 reminder_preference: bookingData.reminder_preference || 'email_sms',
+                customer_birthday: bookingData.customer_birthday || null,
                 service_id: bookingData.service_id,
                 staff_id: bookingData.staff_id,
                 booking_date: bookingData.booking_date,

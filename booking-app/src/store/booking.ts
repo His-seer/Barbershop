@@ -15,6 +15,8 @@ export type BookingState = {
         phone?: string;
         preferEmailOnly?: boolean;
         reminderPreference?: ReminderPreference;
+        birthdayDay?: string;   // "DD"
+        birthdayMonth?: string; // "MM" (01-12)
     };
     customerNotes: string;
     policiesAccepted: boolean;
@@ -46,7 +48,9 @@ export const useBookingStore = create<BookingState>()(
                 email: '',
                 phone: '',
                 preferEmailOnly: false,
-                reminderPreference: 'email_sms'
+                reminderPreference: 'email_sms',
+                birthdayDay: '',
+                birthdayMonth: ''
             },
             customerNotes: '',
             policiesAccepted: false,
@@ -81,7 +85,9 @@ export const useBookingStore = create<BookingState>()(
                     email: '',
                     phone: '',
                     preferEmailOnly: false,
-                    reminderPreference: 'email_sms'
+                    reminderPreference: 'email_sms',
+                    birthdayDay: '',
+                    birthdayMonth: ''
                 },
                 customerNotes: '',
                 policiesAccepted: false

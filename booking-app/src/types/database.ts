@@ -206,6 +206,7 @@ export interface CreateBookingData {
     customer_phone?: string;
     prefer_email_only?: boolean;
     reminder_preference?: ReminderPreference;
+    customer_birthday?: string; // MM-DD
     // Booking Details
     service_id: string;
     staff_id: string;

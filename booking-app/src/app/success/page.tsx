@@ -64,6 +64,10 @@ export default async function SuccessPage({
                 bookingDetails.reminderPreference === 'email_only' || bookingDetails.reminderPreference === 'email_sms'
                     ? bookingDetails.reminderPreference
                     : 'email_sms',
+            customer_birthday:
+                (typeof bookingDetails.customerBirthdayMonth === 'string' && typeof bookingDetails.customerBirthdayDay === 'string')
+                    ? `${bookingDetails.customerBirthdayMonth}-${bookingDetails.customerBirthdayDay}`
+                    : undefined,
             customer_notes: typeof bookingDetails.customerNotes === 'string' ? bookingDetails.customerNotes : undefined,
             service_id: typeof bookingDetails.serviceId === 'string' ? bookingDetails.serviceId : '',
             staff_id: typeof bookingDetails.staffId === 'string' ? bookingDetails.staffId : '',
